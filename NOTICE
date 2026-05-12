@@ -1,0 +1,35 @@
+AWS Study Cards
+
+This application references AWS services for educational purposes. The
+following third-party assets and names are NOT part of this repository's
+license and remain the property of their respective owners:
+
+------------------------------------------------------------------------
+
+AWS Architecture Icons
+  © Amazon.com, Inc. or its affiliates.
+
+  When installed locally (see public/icons/README.md), the AWS Architecture
+  Icons are used solely to identify the corresponding AWS service. They are
+  not redistributed by this repository. Their use is governed by:
+
+  - AWS Trademark Guidelines:
+    https://aws.amazon.com/trademark-guidelines/
+  - AWS Architecture Icons Terms of Use, as published with the official
+    asset package at https://aws.amazon.com/architecture/icons/
+
+AWS Service Names
+  Names such as "Amazon EC2", "Amazon S3", "AWS Lambda", "Amazon DynamoDB",
+  "AWS IAM", "Amazon CloudFront", etc. are trademarks of Amazon.com, Inc.
+  or its affiliates. References in this project (in code, JSON data files,
+  and UI) are nominative and intended to identify the services being studied.
+
+  This project is not affiliated with, endorsed by, or sponsored by
+  Amazon Web Services, Inc.
+
+------------------------------------------------------------------------
+
+Service descriptions, use cases and category groupings included in
+data/services.json and data/categories.json were authored by the project
+maintainers for study purposes and are released under the same terms as
+the rest of the repository.

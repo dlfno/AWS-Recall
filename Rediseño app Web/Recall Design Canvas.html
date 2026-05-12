@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light" data-pair="dm">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>recall · design canvas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Quicksand:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* Reset background blob — we're inside a canvas, not a page */
+    body::before { display: none; }
+    /* Topbar inside an artboard should not be sticky/global */
+    .static-shell .topbar { position: relative; }
+    /* Each static-shell inherits paper bg; force size to fill artboard */
+    .static-shell { display: grid; grid-template-rows: auto 1fr auto; }
+    .static-shell .page { padding: 24px 28px 60px; }
+  </style>
+
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" rx="36" fill="#FBF7F0"/>
+      <g transform="translate(40 40)">
+        <rect width="50" height="50" rx="10" fill="#FF8B6B"/>
+        <rect x="60" width="50" height="50" rx="10" fill="#6BB6FF"/>
+        <rect y="60" width="50" height="50" rx="10" fill="#B095F0"/>
+        <rect x="60" y="60" width="50" height="50" rx="10" fill="#FFC85C"/>
+      </g>
+    </svg>
+  </template>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+          integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+          crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+          integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+          crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+          integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+          crossorigin="anonymous"></script>
+
+  <script src="src/data.js"></script>
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="src/ui.jsx"></script>
+  <script type="text/babel" src="src/home.jsx"></script>
+  <script type="text/babel" src="src/setup.jsx"></script>
+  <script type="text/babel" src="src/flashcard.jsx"></script>
+  <script type="text/babel" src="src/memorama.jsx"></script>
+  <script type="text/babel" src="src/drilldown.jsx"></script>
+  <script type="text/babel" src="src/exam.jsx"></script>
+  <script type="text/babel" src="src/stats.jsx"></script>
+  <script type="text/babel" src="src/canvas-app.jsx"></script>
+</body>
+</html>

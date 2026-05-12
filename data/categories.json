@@ -1,0 +1,104 @@
+[
+  {
+    "id": "compute",
+    "name": "Cómputo",
+    "color": "#ED7100",
+    "description": "Servicios para ejecutar aplicaciones: VMs, contenedores, serverless y batch."
+  },
+  {
+    "id": "storage",
+    "name": "Almacenamiento",
+    "color": "#7AA116",
+    "description": "Almacenamiento de objetos, bloques, archivos y backup."
+  },
+  {
+    "id": "database",
+    "name": "Bases de datos",
+    "color": "#C925D1",
+    "description": "Bases de datos relacionales, NoSQL, in-memory y data warehouse."
+  },
+  {
+    "id": "networking",
+    "name": "Redes y entrega de contenido",
+    "color": "#8C4FFF",
+    "description": "VPC, DNS, CDN, balanceo de carga y conectividad híbrida."
+  },
+  {
+    "id": "security",
+    "name": "Seguridad, identidad y cumplimiento",
+    "color": "#DD344C",
+    "description": "Gestión de identidades, claves, secretos y protección frente a amenazas."
+  },
+  {
+    "id": "management",
+    "name": "Monitoreo y administración",
+    "color": "#E7157B",
+    "description": "Observabilidad, IaC, auditoría y administración multi-cuenta."
+  },
+  {
+    "id": "analytics",
+    "name": "Análisis",
+    "color": "#8C4FFF",
+    "description": "Procesamiento de datos, streaming, BI y data lakes."
+  },
+  {
+    "id": "integration",
+    "name": "Integración de aplicaciones",
+    "color": "#E7157B",
+    "description": "Colas, eventos, notificaciones y orquestación de flujos."
+  },
+  {
+    "id": "containers",
+    "name": "Contenedores",
+    "color": "#ED7100",
+    "description": "Orquestación de contenedores y registros de imágenes."
+  },
+  {
+    "id": "devtools",
+    "name": "Herramientas de desarrollador",
+    "color": "#3334B9",
+    "description": "Pipelines CI/CD, tracing y herramientas de desarrollo."
+  },
+  {
+    "id": "migration",
+    "name": "Migración y transferencia",
+    "color": "#01A88D",
+    "description": "Migración de bases de datos, transferencia masiva y dispositivos edge."
+  },
+  {
+    "id": "cost",
+    "name": "Gestión de costos",
+    "color": "#E7157B",
+    "description": "Visibilidad, presupuestos y descuentos por compromiso."
+  },
+  {
+    "id": "ml",
+    "name": "Machine Learning",
+    "color": "#01A88D",
+    "description": "Modelos generativos, entrenamiento, visión, lenguaje y voz."
+  },
+  {
+    "id": "iot",
+    "name": "IoT",
+    "color": "#7AA116",
+    "description": "Conectividad y procesamiento para dispositivos IoT."
+  },
+  {
+    "id": "media",
+    "name": "Multimedia",
+    "color": "#C925D1",
+    "description": "Encoding, distribución y procesamiento de video."
+  },
+  {
+    "id": "frontend",
+    "name": "Front-end y móvil",
+    "color": "#DD344C",
+    "description": "Frameworks para apps móviles y web, APIs GraphQL y engagement."
+  },
+  {
+    "id": "euc",
+    "name": "End User Computing",
+    "color": "#8C4FFF",
+    "description": "Escritorios y streaming de aplicaciones para usuarios finales."
+  }
+]
