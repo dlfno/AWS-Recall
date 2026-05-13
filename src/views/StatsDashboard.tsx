@@ -116,8 +116,8 @@ export function StatsDashboard() {
             Tu progreso.
           </h1>
           <p className="lede" style={{ marginTop: 14 }}>
-            Todo el avance de tus cuatro modos en un lugar. Local-first; nada
-            sale de tu navegador.
+            Todo tu avance en un lugar. Comparte un perfil público con tu clase
+            y compárense en <code className="mono">/compare/:a/:b</code>.
           </p>
         </div>
         <div>

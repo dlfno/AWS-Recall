@@ -233,11 +233,27 @@ body::before {
   font-size: 12px;
   color: var(--ink-3);
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+  text-align: center;
 }
+.footer-rule code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 6px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm, 8px);
+  color: var(--ink-2);
+}
+.footer-rule a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+.footer-rule a:hover { text-decoration: underline; }
 
 /* ════════════════════════════════════════════════════════════════════
    Type
@@ -1863,6 +1879,19 @@ body::before {
 
 .invite-form { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; margin-top: 10px; }
 .invite-form .btn { align-self: center; }
+.copy-btn {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  border-radius: var(--r-sm, 8px);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  transition: transform 150ms var(--ease-bounce), background 150ms;
+}
+.copy-btn:hover { background: var(--paper); transform: translateY(-1px); }
+.copy-btn:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent) 50%, transparent); outline-offset: 2px; }
 .invite-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
 .invite-table th, .invite-table td { padding: 10px 8px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--rule); }
 .invite-table th { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); font-size: 11px; }
@@ -1870,6 +1899,37 @@ body::before {
 .invite-disponible { background: color-mix(in oklab, var(--good, #2BB673) 18%, transparent); color: var(--good, #2BB673); }
 .invite-usado { background: color-mix(in oklab, var(--ink-3) 18%, transparent); color: var(--ink-3); }
 .invite-expirado { background: color-mix(in oklab, var(--bad, #DD344C) 18%, transparent); color: var(--bad, #DD344C); }
+
+.reset-link-row td {
+  padding: 0;
+  background: color-mix(in oklab, var(--accent) 5%, transparent);
+}
+.reset-link-box {
+  display: flex; gap: 16px; justify-content: space-between; align-items: flex-start;
+  padding: 14px 18px;
+  border-radius: var(--r-md);
+}
+.reset-url {
+  display: block;
+  margin-top: 4px;
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm, 8px);
+  word-break: break-all;
+  max-width: 560px;
+}
+.btn.sm { padding: 6px 12px; font-size: 13px; }
+
+.forgot-steps {
+  margin: 20px 0 0;
+  padding-left: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+  font-size: 14px;
+}
+.forgot-steps li::marker { color: var(--accent); font-weight: 700; }
 
 /* ════════════════════════════════════════════════════════════════════
    Responsive

@@ -1,10 +1,13 @@
 <div align="center">
 
+<img src="public/og.png" alt="Recall · AWS Study Cards" width="820" />
+
 # 🎴 Recall · AWS Study Cards
 
 **App web multi-usuario para estudiar AWS con tu grupo de clase.**
 Cuatro modos de juego, repetición espaciada Leitner, perfiles con foto,
-comparación de progreso, leaderboard, feed de actividad y deploy con un solo comando.
+comparación de progreso, leaderboard, feed de actividad, recuperación de
+contraseña asistida por admin y deploy con un solo comando.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)
@@ -22,6 +25,7 @@ comparación de progreso, leaderboard, feed de actividad y deploy con un solo co
 ![Drilldown features](https://img.shields.io/badge/Drilldown%20Features-105-7B61FF?style=for-the-badge)
 ![Categorías](https://img.shields.io/badge/Categorías-17-E7157B?style=for-the-badge)
 ![A11y](https://img.shields.io/badge/Dislexia-OpenDyslexic-2BB673?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
 
 </div>
 
@@ -38,6 +42,7 @@ comparación de progreso, leaderboard, feed de actividad y deploy con un solo co
 - [Estructura del proyecto](#-estructura-del-proyecto)
 - [API REST](#-api-rest)
 - [Modelo de datos](#-modelo-de-datos)
+- [Recuperación de contraseña](#-recuperación-de-contraseña)
 - [Modos de juego — detalle](#-modos-de-juego--detalle)
 - [Stats dashboard](#-stats-dashboard)
 - [Personalización](#-personalización)
@@ -54,6 +59,8 @@ comparación de progreso, leaderboard, feed de actividad y deploy con un solo co
 ```text
 recall.tu-dominio.com/login    → entrar con apodo + contraseña
                        /register → registrarse con invite code
+                       /forgot   → instrucciones de recuperación
+                       /reset    → setear nueva contraseña con token de admin
                        /         → 4 mode tiles + continue bar + dash row
                        /flashcards/play  → Leitner 5 cajas, espacio voltea, J/K responde
                        /memorama/play    → tableros 6/8/12/18 con cronómetro
@@ -65,8 +72,8 @@ recall.tu-dominio.com/login    → entrar con apodo + contraseña
                        /compare/:a/:b    → cara a cara con ganador por fila
                        /leaderboard      → rankings por modo
                        /feed             → actividad reciente de la clase
-                       /ajustes          → 6 acentos + 4 fuentes (incl. OpenDyslexic)
-                       /admin            → generar/revocar invite codes (solo admin)
+                       /ajustes          → apariencia (6 acentos + 4 fuentes), perfil, contraseña
+                       /admin            → invite codes + miembros + reset de contraseñas
 ```
 
 ---
@@ -86,12 +93,15 @@ recall.tu-dominio.com/login    → entrar con apodo + contraseña
 
 - 🔐 **Registro cerrado** con invite codes (admin genera, los demás se unen)
 - 👤 **Perfiles** con nombre completo, apodo único, foto (resize automático a 256×256 webp)
+- ✏️ **Edición de perfil y cambio de contraseña** in-app desde `/ajustes`
+- 🆘 **Recuperación de contraseña asistida por admin** con tokens de un solo uso (TTL 24h) — sin necesidad de email ni SMTP
 - 🏆 **Leaderboards** por modo (cartas dominadas, % drilldown, exámenes aprobados, partidas de memorama)
 - 🤝 **Comparación 1-a-1** entre dos usuarios con ganador resaltado por fila
 - 📅 **Heatmap de actividad** tipo GitHub (últimos 28 días)
 - 🔥 **Streak** (días consecutivos) calculada server-side desde múltiples fuentes
 - 📰 **Feed** con actividad reciente de toda la clase (cartas dominadas, exámenes, récords)
 - 👁️ **Last seen** en lista de miembros con throttle de 60 s
+- 📷 **Open Graph + Twitter Card** preconfiguradas — preview decente al compartir el link en WhatsApp/Slack/Discord
 
 ### 🎨 Personalización por usuario
 
@@ -343,6 +353,8 @@ BOOTSTRAP_INVITE=FIRSTRUN
 │   └── views/
 │       ├── Home.tsx               ← hero + continue-bar + mode tiles
 │       ├── Login.tsx, Register.tsx
+│       ├── Forgot.tsx             ← /forgot — instrucciones de recuperación
+│       ├── Reset.tsx              ← /reset?token=… — set nueva contraseña + auto-login
 │       ├── FlashcardSetup.tsx, FlashcardSession.tsx
 │       ├── MemoramaSetup.tsx,   MemoramaBoard.tsx
 │       ├── DrilldownSetup.tsx,  DrilldownSession.tsx
@@ -353,8 +365,8 @@ BOOTSTRAP_INVITE=FIRSTRUN
 │       ├── Compare.tsx            ← /compare/:a/:b — cara a cara
 │       ├── Leaderboard.tsx        ← rankings por modo
 │       ├── Feed.tsx               ← actividad reciente de la clase
-│       ├── Admin.tsx              ← generar/revocar invite codes
-│       └── Settings.tsx           ← /ajustes — apariencia (acento + fuente)
+│       ├── Admin.tsx              ← invites + miembros + botón resetear contraseña
+│       └── Settings.tsx           ← /ajustes — apariencia + perfil + contraseña
 │
 ├── server/                        ← backend (Fastify + better-sqlite3)
 │   ├── package.json
@@ -366,16 +378,18 @@ BOOTSTRAP_INVITE=FIRSTRUN
 │       ├── auth.ts                ← bcrypt + sesiones + requireAuth/Admin
 │       ├── validation.ts          ← ApiError + validadores
 │       ├── types.ts               ← UserRow, SessionRow, InviteRow…
-│       ├── schema.sql             ← 9 tablas
+│       ├── schema.sql             ← 10 tablas
 │       └── routes/
-│           ├── auth.ts            ← /api/auth/*
+│           ├── auth.ts            ← /api/auth/* (login, register, reset, me…)
 │           ├── me.ts              ← /api/me/{profile,photo,password}
-│           ├── admin.ts           ← /api/admin/{invites,users}
+│           ├── admin.ts           ← /api/admin/{invites,users,users/:nick/reset-password}
 │           ├── progress.ts        ← flashcards/drilldown/memorama/exam/config + DELETEs
 │           └── social.ts          ← /api/users, /:nick, /compare, /leaderboard, /feed
 │
 ├── public/
 │   ├── icons/                     ← 181 SVGs oficiales + icon-map.md
+│   ├── og.png                     ← Open Graph 1200×630 (preview en chats)
+│   ├── favicon.svg
 │   └── Asset-Package_07312025…/   ← paquete oficial extraído
 │
 ├── scripts/
@@ -394,8 +408,9 @@ BOOTSTRAP_INVITE=FIRSTRUN
 
 ## 🛣️ API REST
 
-Todos los endpoints excepto `/api/health`, `/api/auth/login`, `/api/auth/register` y
-`/api/auth/bootstrap-status` requieren una cookie de sesión válida.
+Todos los endpoints excepto `/api/health`, `/api/auth/login`, `/api/auth/register`,
+`/api/auth/bootstrap-status` y `/api/auth/reset` (GET y POST) requieren una
+cookie de sesión válida.
 
 ### Auth
 
@@ -406,6 +421,8 @@ Todos los endpoints excepto `/api/health`, `/api/auth/login`, `/api/auth/registe
 | `POST` | `/api/auth/logout` | — | `{ok}` + cookie cleared |
 | `GET`  | `/api/auth/me` | — | `{user}` (401 si no hay sesión) |
 | `GET`  | `/api/auth/bootstrap-status` | — | `{hasUsers}` |
+| `GET`  | `/api/auth/reset?token=…` | — | `{ok, nickname, fullName, expiresAt}` o 400 |
+| `POST` | `/api/auth/reset` | `{token, new_password}` | `{user}` + cookie (auto-login). Destruye sesiones viejas del user |
 
 ### Perfil propio (`/me`)
 
@@ -424,6 +441,7 @@ Todos los endpoints excepto `/api/health`, `/api/auth/login`, `/api/auth/registe
 | `POST`   | `/api/admin/invites` | `{count?: 1-20, ttl_days?: 1-365}` | `{codes: [...]}` |
 | `DELETE` | `/api/admin/invites/:code` | — | `{ok}` o 400 si ya usado |
 | `GET`    | `/api/admin/users` | — | `{users: [...]}` |
+| `POST`   | `/api/admin/users/:nickname/reset-password` | — | `{token, expiresAt, targetNickname, targetFullName}`. Rechaza self-reset con 400 |
 
 ### Progreso
 
@@ -471,34 +489,82 @@ Todos los endpoints excepto `/api/health`, `/api/auth/login`, `/api/auth/registe
 
 ## 🗄️ Modelo de datos
 
-SQLite con 9 tablas. PK compuestas donde aplica; `WAL` activo; `foreign_keys = ON`.
+SQLite con 10 tablas. PK compuestas donde aplica; `WAL` activo;
+`foreign_keys = ON`. Housekeeping al bootear: expirar sesiones, recortar
+`activity_log` a 180 días, limpiar reset tokens.
 
 ```sql
-users               id, full_name, nickname (UNIQUE NOCASE), password_hash,
-                    photo_path, is_admin, created_at, last_active_at
+users                   id, full_name, nickname (UNIQUE NOCASE), password_hash,
+                        photo_path, is_admin, created_at, last_active_at
 
-invite_codes        code (PK), created_by → users, used_by → users, used_at,
-                    created_at, expires_at
+invite_codes            code (PK), created_by → users, used_by → users, used_at,
+                        created_at, expires_at
 
-sessions            id (PK 32 hex), user_id → users, expires_at, last_active_at
+sessions                id (PK 32 hex), user_id → users, expires_at, last_active_at
 
-flashcard_progress  PK (user_id, card_id), box, reviews, lapses, last_reviewed
-drilldown_progress  PK (user_id, feature_id), attempts, correct, last_attempt
-memorama_stats      PK (user_id, pairs), best_moves, best_time, played
-exam_attempts       id, user_id, timestamp, total, answered, correct,
-                    duration_ms, passed, config_json  [INDEX user_id, timestamp DESC]
+password_reset_tokens   token (PK 64 hex), user_id → users, created_by → users,
+                        created_at, expires_at, used_at        [INDEX user_id]
 
-user_configs        PK (user_id, kind), json
-                    kind ∈ flashcard | memorama | exam | filters | theme | appearance
+flashcard_progress      PK (user_id, card_id), box, reviews, lapses, last_reviewed
+drilldown_progress      PK (user_id, feature_id), attempts, correct, last_attempt
+memorama_stats          PK (user_id, pairs), best_moves, best_time, played
+exam_attempts           id, user_id, timestamp, total, answered, correct,
+                        duration_ms, passed, config_json  [INDEX user_id, timestamp DESC]
 
-activity_log        id, user_id, kind, occurred_at, payload_json
-                    kind ∈ card_mastered | exam_passed | exam_failed | memo_record
-                    [INDEX user_id, occurred_at DESC] + [INDEX occurred_at DESC]
+user_configs            PK (user_id, kind), json
+                        kind ∈ flashcard | memorama | exam | filters | theme | appearance
+
+activity_log            id, user_id, kind, occurred_at, payload_json
+                        kind ∈ card_mastered | exam_passed | exam_failed | memo_record
+                        [INDEX user_id, occurred_at DESC] + [INDEX occurred_at DESC]
 ```
 
 > `streak` y `heatmap28` se calculan al vuelo desde `activity_log` ∪
 > `flashcard_progress.last_reviewed` ∪ `drilldown_progress.last_attempt` ∪
 > `exam_attempts.timestamp`. No hay tabla precomputada — el cálculo es O(eventos del user).
+
+---
+
+## 🆘 Recuperación de contraseña
+
+Recall **no recolecta email** al registrarse, así que el reset no se hace
+solo por correo. En su lugar el admin de la clase emite un **token de un solo
+uso** que se comparte fuera de banda (WhatsApp, Slack, en persona).
+
+```
+┌──────────┐                  ┌──────────┐                  ┌────────────┐
+│ Usuario  │  "olvidé pass"   │  Admin   │  POST reset      │   Server   │
+│          │ ───────────────▶ │          │ ───────────────▶ │            │
+│          │                  │          │ ◀─── {token} ─── │            │
+│          │ ◀── reset URL ── │          │                  │            │
+│          │ POST /api/auth/reset (token + new_password)   ─▶│            │
+│          │ ◀─── {user} + cookie ────────────────────────── │            │
+└──────────┘                  └──────────┘                  └────────────┘
+```
+
+| Aspecto | Decisión |
+|---|---|
+| Entropía del token | 32 bytes hex (256 bits) |
+| TTL | **24 horas** desde emisión |
+| Single-use | `used_at` se setea al consumir; el GET valida que sea NULL |
+| Stacking | al emitir uno nuevo se borran los previos sin usar del mismo user |
+| Sesiones viejas | se destruyen TODAS al consumir el token → cierra cuentas tomadas |
+| Auto-login | el POST exitoso emite cookie nueva → user va directo a `/` |
+| Self-reset del admin | rechazado (400) — el admin usa `/ajustes` con su pass actual |
+| No-leak | el GET solo expone `{nickname, fullName}` cuando el token es válido |
+| Housekeeping | tokens expirados + tokens usados con >30 días se borran al bootear |
+
+**Flujo de usuario**:
+
+1. En `/login`, click *"¿Olvidaste tu contraseña?"* → llega a `/forgot`.
+2. `/forgot` le dice cómo proceder (pídele a tu admin).
+3. El admin va a `/admin → Miembros`, busca al usuario y clickea *"Resetear contraseña"*.
+4. La fila se expande con la URL completa y un botón *Copiar link*.
+5. El admin la comparte por el canal de la clase.
+6. El usuario abre la URL → `/reset?token=…` valida el token y muestra
+   *"Hola, &lt;Nombre&gt;"* + form de nueva contraseña.
+7. Al confirmar, el server hashea, destruye sesiones viejas, emite cookie nueva
+   y la `Reset.tsx` llama `refreshUser()` → redirige a `/`.
 
 ---
 
@@ -708,9 +774,13 @@ node scripts/gen-icon-map.mjs > public/icons/icon-map.md  # mapa reproducible
 
 ## ⚖️ Licencia y atribución
 
-Ver [`NOTICE`](./NOTICE). Este proyecto **no está afiliado** ni patrocinado
-por Amazon Web Services. Los nombres de servicios e íconos son trademarks de
-Amazon.com, Inc.
+El código de este proyecto se distribuye bajo [**licencia MIT**](./LICENSE) —
+puedes usarlo, modificarlo y redistribuirlo libremente conservando el aviso de
+copyright. Los íconos, nombres de servicios y otros assets de terceros
+mantienen sus propias licencias; ver [`NOTICE`](./NOTICE).
+
+Este proyecto **no está afiliado** ni patrocinado por Amazon Web Services.
+Los nombres de servicios e íconos son trademarks de Amazon.com, Inc.
 
 - **AWS Architecture Icons** — © Amazon.com, Inc. Uso nominativo bajo
   [trademark guidelines](https://aws.amazon.com/trademark-guidelines/).

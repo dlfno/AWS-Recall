@@ -63,6 +63,9 @@ export function Login() {
             {busy ? "Entrando…" : "Entrar"}
           </button>
         </form>
+        <p className="muted" style={{ marginTop: 8, fontSize: 13 }}>
+          <Link to="/forgot">¿Olvidaste tu contraseña?</Link>
+        </p>
         <p className="muted" style={{ marginTop: 16 }}>
           ¿No tienes cuenta? <Link to="/register">Crear con código</Link>
         </p>

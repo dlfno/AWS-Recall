@@ -118,8 +118,17 @@ export function Topbar() {
 export function FooterRule() {
   return (
     <div className="footer-rule">
-      <span>recall · estudio compartido de AWS · 181 servicios curados</span>
-      <span>sistema leitner · multi-usuario</span>
+      <span>
+        Hecho con ☕ y <code>tsc --strict</code> por{" "}
+        <a
+          href="https://github.com/dlfno"
+          target="_blank"
+          rel="noreferrer"
+        >
+          @dlfno
+        </a>{" "}
+        para sus compañeros de clase.
+      </span>
     </div>
   );
 }

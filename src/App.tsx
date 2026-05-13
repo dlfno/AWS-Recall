@@ -13,6 +13,8 @@ import { ExamSession } from "./views/ExamSession";
 import { StatsDashboard } from "./views/StatsDashboard";
 import { Login } from "./views/Login";
 import { Register } from "./views/Register";
+import { Forgot } from "./views/Forgot";
+import { Reset } from "./views/Reset";
 import { Members } from "./views/Members";
 import { PublicProfile } from "./views/PublicProfile";
 import { Compare } from "./views/Compare";
@@ -32,6 +34,8 @@ export function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot" element={<Forgot />} />
+          <Route path="/reset" element={<Reset />} />
 
           <Route path="/" element={<Protected><Home /></Protected>} />
           <Route path="/flashcards" element={<Protected><FlashcardSetup /></Protected>} />

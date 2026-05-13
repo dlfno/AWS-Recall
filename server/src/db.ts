@@ -15,8 +15,28 @@ export function db(): Database.Database {
   const sql = fs.readFileSync(env.schemaPath, "utf8");
   instance.exec(sql);
   bootstrapInviteIfNeeded(instance);
+  housekeeping(instance);
   _db = instance;
   return instance;
+}
+
+function housekeeping(instance: Database.Database): void {
+  // Limpieza barata en cada cold start. Las queries activas ya filtran por
+  // expires_at / ventana de tiempo, así que esto solo evita que las tablas
+  // crezcan sin tope.
+  const now = Date.now();
+  const sixMonthsMs = 180 * 86_400_000;
+  const thirtyDaysMs = 30 * 86_400_000;
+  instance.prepare("DELETE FROM sessions WHERE expires_at < ?").run(now);
+  instance
+    .prepare("DELETE FROM activity_log WHERE occurred_at < ?")
+    .run(now - sixMonthsMs);
+  // Tokens expirados y los ya usados con más de 30 días
+  instance
+    .prepare(
+      "DELETE FROM password_reset_tokens WHERE expires_at < ? OR (used_at IS NOT NULL AND used_at < ?)",
+    )
+    .run(now, now - thirtyDaysMs);
 }
 
 function bootstrapInviteIfNeeded(instance: Database.Database): void {

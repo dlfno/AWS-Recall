@@ -3,10 +3,14 @@ import crypto from "node:crypto";
 import { db } from "../db.js";
 import {
   clearCookie,
+  consumeResetToken,
   createSession,
+  destroyAllSessionsForUser,
   destroySession,
   hashPassword,
+  loadUser,
   loadUserByNickname,
+  loadValidResetToken,
   publicUser,
   requireAuth,
   setCookie,
@@ -96,6 +100,46 @@ export default async function authRoutes(app: FastifyInstance) {
 
   app.get("/api/auth/me", { preHandler: requireAuth }, async (req) => {
     return { user: publicUser(req.user!) };
+  });
+
+  // ───────── password reset (admin-mediated tokens) ─────────
+
+  app.get("/api/auth/reset", async (req) => {
+    const { token } = req.query as { token?: string };
+    if (!token || typeof token !== "string") throw new ApiError(400, "Token requerido");
+    const found = loadValidResetToken(token);
+    if (!found) throw new ApiError(400, "Token inválido o expirado");
+    return {
+      ok: true,
+      nickname: found.user.nickname,
+      fullName: found.user.full_name,
+      expiresAt: found.row.expires_at,
+    };
+  });
+
+  app.post("/api/auth/reset", async (req, reply) => {
+    const body = (req.body ?? {}) as Record<string, unknown>;
+    if (typeof body.token !== "string") throw new ApiError(400, "Token requerido");
+    const newPassword = validatePassword(body.new_password);
+    const found = loadValidResetToken(body.token);
+    if (!found) throw new ApiError(400, "Token inválido o expirado");
+
+    const passwordHash = await hashPassword(newPassword);
+    const userId = found.user.id;
+    const tokenStr = body.token;
+
+    db().transaction(() => {
+      db().prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(passwordHash, userId);
+      consumeResetToken(tokenStr);
+    })();
+    // Mata todas las sesiones viejas — fuera de la transacción para usar el helper
+    destroyAllSessionsForUser(userId);
+
+    // Auto-login con sesión fresca
+    const sid = createSession(userId);
+    setCookie(reply, sid);
+    const u = loadUser(userId)!;
+    return { user: publicUser(u) };
   });
 
   // Bootstrap helper: si no hay invites en absoluto, no expone nada.

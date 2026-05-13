@@ -88,3 +88,13 @@ CREATE TABLE IF NOT EXISTS activity_log (
 );
 CREATE INDEX IF NOT EXISTS idx_activity_user_time ON activity_log(user_id, occurred_at DESC);
 CREATE INDEX IF NOT EXISTS idx_activity_time      ON activity_log(occurred_at DESC);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  token        TEXT PRIMARY KEY,
+  user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_by   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at   INTEGER NOT NULL,
+  expires_at   INTEGER NOT NULL,
+  used_at      INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_reset_user ON password_reset_tokens(user_id);

@@ -113,6 +113,63 @@ export async function requireAdmin(req: FastifyRequest, reply: FastifyReply): Pr
   }
 }
 
+// ───────── password reset tokens ─────────
+
+export interface ResetTokenRow {
+  token: string;
+  user_id: number;
+  created_by: number;
+  created_at: number;
+  expires_at: number;
+  used_at: number | null;
+}
+
+const RESET_TTL_MS = 24 * 60 * 60 * 1000;
+
+export function createResetToken(userId: number, adminId: number): ResetTokenRow {
+  // Revoca tokens previos no usados — evita stacking
+  db().prepare(
+    "DELETE FROM password_reset_tokens WHERE user_id = ? AND used_at IS NULL",
+  ).run(userId);
+  const token = crypto.randomBytes(32).toString("hex");
+  const now = Date.now();
+  const expiresAt = now + RESET_TTL_MS;
+  db()
+    .prepare(
+      `INSERT INTO password_reset_tokens (token, user_id, created_by, created_at, expires_at)
+       VALUES (?, ?, ?, ?, ?)`,
+    )
+    .run(token, userId, adminId, now, expiresAt);
+  return {
+    token,
+    user_id: userId,
+    created_by: adminId,
+    created_at: now,
+    expires_at: expiresAt,
+    used_at: null,
+  };
+}
+
+export function loadValidResetToken(
+  token: string,
+): { row: ResetTokenRow; user: UserRow } | null {
+  const row = db()
+    .prepare("SELECT * FROM password_reset_tokens WHERE token = ?")
+    .get(token) as ResetTokenRow | undefined;
+  if (!row) return null;
+  if (row.used_at) return null;
+  if (row.expires_at < Date.now()) return null;
+  const user = loadUser(row.user_id);
+  if (!user) return null;
+  return { row, user };
+}
+
+export function consumeResetToken(token: string): void {
+  db()
+    .prepare("UPDATE password_reset_tokens SET used_at = ? WHERE token = ?")
+    .run(Date.now(), token);
+}
+
 export function publicUser(u: UserRow) {
   return {
     id: u.id,

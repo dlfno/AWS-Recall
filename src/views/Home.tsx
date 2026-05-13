@@ -9,6 +9,18 @@ import {
   topToReview,
 } from "../lib/stats";
 import { SERVICES } from "../lib/data";
+import { useAuth } from "../lib/auth-context";
+
+function greetingForHour(h: number): string {
+  if (h < 12) return "Buenos días";
+  if (h < 19) return "Buenas tardes";
+  return "Buenas noches";
+}
+
+function firstName(fullName: string | undefined): string {
+  if (!fullName) return "";
+  return fullName.trim().split(/\s+/)[0]?.toUpperCase() ?? "";
+}
 
 interface ModeDef {
   id: "flashcards" | "memorama" | "drilldown" | "exam";
@@ -247,10 +259,11 @@ function HowItWorks() {
         </div>
         <div className="how-cell">
           <span className="step-num">04</span>
-          <h4>Local-first</h4>
+          <h4>Para tu clase</h4>
           <p>
-            Todo tu progreso vive en <code>localStorage</code>. Sin cuentas,
-            sin backend, sin telemetría. Tu navegador es tu cuaderno.
+            Compara tu progreso con el de tus compañeros, mira el leaderboard
+            por modo y revisa el feed de actividad. Tu perfil con foto, racha
+            y heatmap viajan contigo.
           </p>
         </div>
       </div>
@@ -260,9 +273,12 @@ function HowItWorks() {
 
 export function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const overall = useMemo(() => computeOverall(), []);
   const lastActivity = useMemo(() => computeLastActivity(), []);
   const totalServices = SERVICES.length;
+  const name = firstName(user?.fullName);
+  const greeting = `${greetingForHour(new Date().getHours()).toUpperCase()}${name ? `, ${name}` : ""}`;
 
   return (
     <div className="page">
@@ -270,13 +286,14 @@ export function Home() {
         <div>
           <div className="eyebrow">
             <span className="dot" />
-            DASHBOARD · BUENOS DÍAS
+            DASHBOARD · {greeting}
           </div>
           <h1 className="h-display" style={{ marginTop: 12 }}>
             Hoy estudias <span className="accent-blob">AWS</span>.
           </h1>
           <p className="lede" style={{ marginTop: 14 }}>
-            Cuatro modos para probar tus conocimientos. Sin azúcar, sin trucos.
+            Cuatro modos para probar tus conocimientos. Compite, compara y
+            aprende junto a tu clase.
           </p>
         </div>
         <div className="hero-meta">
@@ -317,7 +334,7 @@ export function Home() {
             </div>
           </div>
           <div style={{ opacity: 0.55, fontSize: 13 }}>
-            Todo se guarda en tu navegador · sin cuentas
+            Tu progreso se sincroniza con tu cuenta · te sigue entre dispositivos
           </div>
           <button
             type="button"

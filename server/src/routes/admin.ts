@@ -1,8 +1,9 @@
 import type { FastifyInstance } from "fastify";
 import { db } from "../db.js";
-import { publicUser, requireAdmin } from "../auth.js";
+import { createResetToken, loadUserByNickname, publicUser, requireAdmin } from "../auth.js";
 import type { InviteRow, UserRow } from "../types.js";
 import { generateInviteCode } from "./auth.js";
+import { ApiError } from "../validation.js";
 
 export default async function adminRoutes(app: FastifyInstance) {
   app.get("/api/admin/invites", { preHandler: requireAdmin }, async () => {
@@ -70,4 +71,27 @@ export default async function adminRoutes(app: FastifyInstance) {
     const rows = db().prepare("SELECT * FROM users ORDER BY created_at DESC").all() as UserRow[];
     return { users: rows.map(publicUser) };
   });
+
+  app.post(
+    "/api/admin/users/:nickname/reset-password",
+    { preHandler: requireAdmin },
+    async (req) => {
+      const { nickname } = req.params as { nickname: string };
+      const target = loadUserByNickname(nickname);
+      if (!target) throw new ApiError(404, "Usuario no encontrado");
+      if (target.id === req.user!.id) {
+        throw new ApiError(
+          400,
+          "No te puedes resetear a ti mismo desde aquí — usa /ajustes",
+        );
+      }
+      const tok = createResetToken(target.id, req.user!.id);
+      return {
+        token: tok.token,
+        expiresAt: tok.expires_at,
+        targetNickname: target.nickname,
+        targetFullName: target.full_name,
+      };
+    },
+  );
 }
