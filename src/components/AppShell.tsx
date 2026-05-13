@@ -94,6 +94,10 @@ export function Topbar() {
                 <Link to={`/u/${user.nickname}`} onClick={() => setMenuOpen(false)}>Mi perfil</Link>
                 <Link to="/stats" onClick={() => setMenuOpen(false)}>Mis stats</Link>
                 <Link to="/ajustes" onClick={() => setMenuOpen(false)}>Apariencia</Link>
+                <div className="dropdown-divider" />
+                <Link to="/miembros" onClick={() => setMenuOpen(false)}>Miembros</Link>
+                <Link to="/leaderboard" onClick={() => setMenuOpen(false)}>Leaderboard</Link>
+                <Link to="/feed" onClick={() => setMenuOpen(false)}>Feed</Link>
                 {user.isAdmin && (
                   <Link to="/admin" onClick={() => setMenuOpen(false)}>Admin</Link>
                 )}

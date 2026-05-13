@@ -116,8 +116,9 @@ export function StatsDashboard() {
             Tu progreso.
           </h1>
           <p className="lede" style={{ marginTop: 14 }}>
-            Todo tu avance en un lugar. Comparte un perfil público con tu clase
-            y compárense en <code className="mono">/compare/:a/:b</code>.
+            Todo tu avance en un lugar. Visita el{" "}
+            <Link to="/miembros">perfil de un compañero</Link> para comparar tus
+            stats con los suyos.
           </p>
         </div>
         <div>

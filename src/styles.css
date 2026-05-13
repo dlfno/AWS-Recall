@@ -1663,6 +1663,11 @@ body::before {
   border-top: 1px solid var(--rule);
   border-radius: 0 0 var(--r-sm, 8px) var(--r-sm, 8px);
 }
+.dropdown-divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 6px 4px;
+}
 
 /* ════════════════════════════════════════════════════════════════════
    Settings · apariencia (acento + fuentes)
