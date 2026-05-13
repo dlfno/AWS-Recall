@@ -241,16 +241,20 @@ host (TCP 80 + 443 expuestos). Para pruebas locales puedes poner `DOMAIN=localho
 
 ### Servicios y volúmenes
 
-```
-┌────────────────────┐     ┌─────────────────────────┐
-│  Caddy :80/:443    │ ───▶│  app :8080  (Fastify)   │
-│  Let's Encrypt TLS │     │  - /api/*               │
-│  reverse_proxy     │     │  - /uploads/*           │
-└────────────────────┘     │  - SPA fallback         │
-                           └─────┬───────────────┬───┘
-                                 │               │
-                          vol: db_data    vol: uploads
-                          recall.db       avatars/*.webp
+```mermaid
+flowchart LR
+    Browser(("🌐 navegador"))
+    Caddy["<b>Caddy 2</b><br/>:80 / :443<br/>Let's Encrypt TLS<br/>reverse_proxy"]
+    App["<b>app :8080</b> (Fastify)<br/>/api/* · /uploads/* · SPA fallback"]
+    DB[("vol: db_data<br/>recall.db + WAL")]
+    Up[("vol: uploads<br/>avatars/*.webp")]
+    CD[("vol: caddy_data<br/>certs + ACME")]
+
+    Browser -->|HTTPS| Caddy
+    Caddy --> App
+    Caddy --- CD
+    App --- DB
+    App --- Up
 ```
 
 | Volumen | Contenido | Sobrevive `down`/`up` |
