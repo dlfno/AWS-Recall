@@ -531,15 +531,20 @@ Recall **no recolecta email** al registrarse, así que el reset no se hace
 solo por correo. En su lugar el admin de la clase emite un **token de un solo
 uso** que se comparte fuera de banda (WhatsApp, Slack, en persona).
 
-```
-┌──────────┐                  ┌──────────┐                  ┌────────────┐
-│ Usuario  │  "olvidé pass"   │  Admin   │  POST reset      │   Server   │
-│          │ ───────────────▶ │          │ ───────────────▶ │            │
-│          │                  │          │ ◀─── {token} ─── │            │
-│          │ ◀── reset URL ── │          │                  │            │
-│          │ POST /api/auth/reset (token + new_password)   ─▶│            │
-│          │ ◀─── {user} + cookie ────────────────────────── │            │
-└──────────┘                  └──────────┘                  └────────────┘
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Usuario
+    participant A as Admin
+    participant S as Server
+
+    U->>A: "olvidé mi contraseña"
+    A->>S: POST /api/admin/users/:nick/reset-password
+    S-->>A: { token, expiresAt }
+    A-->>U: comparte link de reset (WhatsApp/Slack)
+    U->>S: POST /api/auth/reset { token, new_password }
+    Note over S: hash new pass · consume token · destroy old sessions
+    S-->>U: { user } + cookie (auto-login)
 ```
 
 | Aspecto | Decisión |
