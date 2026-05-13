@@ -3,27 +3,23 @@
    Soft pastel, rounded, gentle shadows, micro-animations.
    ════════════════════════════════════════════════════════════════════ */
 
-/* OpenDyslexic (OFL license) — opción accesible servida desde jsdelivr.
-   Para self-host: descarga los woff2 de github.com/antijingoist/open-dyslexic
-   a /public/fonts/ y reemplaza las URLs aquí. */
+/* OpenDyslexic (OFL license) — opción accesible vía @fontsource en jsdelivr.
+   Para self-host: descarga los woff2 desde
+     https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic/files/
+   a /public/fonts/ y reemplaza las URLs aquí por /fonts/<archivo>.woff2.
+   El mono usa el mismo OpenDyslexic regular (no existe variante mono
+   oficial actual). */
 @font-face {
   font-family: "OpenDyslexic";
-  src: url("https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic@master/compiled/OpenDyslexic-Regular.woff2") format("woff2");
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic/files/opendyslexic-latin-400-normal.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "OpenDyslexic";
-  src: url("https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic@master/compiled/OpenDyslexic-Bold.woff2") format("woff2");
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic/files/opendyslexic-latin-700-normal.woff2") format("woff2");
   font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "OpenDyslexicMono";
-  src: url("https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic@master/compiled/OpenDyslexicMono-Regular.woff2") format("woff2");
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -117,7 +113,7 @@
 [data-pair="dyslexic"] {
   --font-display: "OpenDyslexic", system-ui, sans-serif;
   --font-body:    "OpenDyslexic", system-ui, sans-serif;
-  --font-mono:    "OpenDyslexicMono", "OpenDyslexic", ui-monospace, monospace;
+  --font-mono:    "OpenDyslexic", ui-monospace, monospace;
 }
 
 * { box-sizing: border-box; }

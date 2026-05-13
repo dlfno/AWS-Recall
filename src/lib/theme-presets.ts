@@ -30,7 +30,7 @@ export const FONT_PAIRS: FontPairPreset[] = [
   { id: "dm",        name: "DM Sans",       display: "DM Sans",          mono: "DM Mono" },
   { id: "jakarta",   name: "Plus Jakarta",  display: "Plus Jakarta Sans", mono: "JetBrains Mono" },
   { id: "quicksand", name: "Quicksand",     display: "Quicksand",         mono: "Space Mono" },
-  { id: "dyslexic",  name: "OpenDyslexic",  display: "OpenDyslexic",      mono: "OpenDyslexicMono", hint: "Amigable para dislexia" },
+  { id: "dyslexic",  name: "OpenDyslexic",  display: "OpenDyslexic",      mono: "OpenDyslexic", hint: "Amigable para dislexia" },
 ];
 
 export interface Appearance {
