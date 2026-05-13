@@ -1,0 +1,18 @@
+node_modules
+server/node_modules
+dist
+server/dist
+server/data
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+.vscode
+.idea
+.DS_Store
+Rediseño app Web
+public/Asset-Package_07312025*
+README.md

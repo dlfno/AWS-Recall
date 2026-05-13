@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    image: aws-recall:latest
+    restart: unless-stopped
+    environment:
+      DB_PATH: /data/recall.db
+      UPLOADS_DIR: /uploads
+      PUBLIC_DIR: /srv/public
+      COOKIE_SECRET: ${COOKIE_SECRET:?Define COOKIE_SECRET en .env}
+      BOOTSTRAP_INVITE: ${BOOTSTRAP_INVITE:-}
+      NODE_ENV: production
+    volumes:
+      - db_data:/data
+      - uploads:/uploads
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?Define DOMAIN en .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  db_data:
+  uploads:
+  caddy_data:
+  caddy_config:

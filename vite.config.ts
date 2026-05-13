@@ -10,4 +10,10 @@ export default defineConfig({
       "@data": path.resolve(__dirname, "data"),
     },
   },
+  server: {
+    proxy: {
+      "/api": "http://localhost:8080",
+      "/uploads": "http://localhost:8080",
+    },
+  },
 });

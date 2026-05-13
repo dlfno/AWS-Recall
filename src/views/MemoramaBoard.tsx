@@ -5,6 +5,7 @@ import { buildBoard } from "../lib/board-builder";
 import {
   loadMemoramaConfig,
   loadMemoramaStats,
+  recordMemoramaGame,
   saveMemoramaStats,
 } from "../lib/progress-store";
 import { getService } from "../lib/data";
@@ -106,6 +107,7 @@ export function MemoramaBoard() {
       stats.bestTimeByPairs[s.pairs] = time;
     }
     saveMemoramaStats(stats);
+    recordMemoramaGame(s.pairs, s.moves, time);
   };
 
   const handleClick = (card: MemoramaCard) => {

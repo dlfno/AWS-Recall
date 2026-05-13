@@ -1,6 +1,8 @@
 node_modules
 dist
 dist-ssr
+server/dist
+server/data
 *.local
 *.tsbuildinfo
 .vscode/*
@@ -8,4 +10,7 @@ dist-ssr
 .idea
 .DS_Store
 *.log
+.env
+.env.*
+!.env.example
 

@@ -82,10 +82,10 @@ export function StatsDashboard() {
 
   const reset = (
     label: string,
-    fn: () => void,
-  ) => () => {
+    fn: () => void | Promise<void>,
+  ) => async () => {
     if (!window.confirm(`¿Borrar ${label}?`)) return;
-    fn();
+    await fn();
     setVersion((v) => v + 1);
   };
 

@@ -1,0 +1,73 @@
+import type { FastifyInstance } from "fastify";
+import { db } from "../db.js";
+import { publicUser, requireAdmin } from "../auth.js";
+import type { InviteRow, UserRow } from "../types.js";
+import { generateInviteCode } from "./auth.js";
+
+export default async function adminRoutes(app: FastifyInstance) {
+  app.get("/api/admin/invites", { preHandler: requireAdmin }, async () => {
+    const rows = db()
+      .prepare(
+        `SELECT i.*, u.nickname as used_by_nickname
+           FROM invite_codes i
+           LEFT JOIN users u ON u.id = i.used_by
+           ORDER BY i.created_at DESC`,
+      )
+      .all() as (InviteRow & { used_by_nickname: string | null })[];
+    return {
+      invites: rows.map((r) => ({
+        code: r.code,
+        createdAt: r.created_at,
+        expiresAt: r.expires_at,
+        usedAt: r.used_at,
+        usedBy: r.used_by_nickname,
+      })),
+    };
+  });
+
+  app.post("/api/admin/invites", { preHandler: requireAdmin }, async (req) => {
+    const body = (req.body ?? {}) as Record<string, unknown>;
+    const count = Math.max(1, Math.min(20, Number(body.count ?? 1)));
+    const ttlDays = body.ttl_days != null ? Math.max(1, Math.min(365, Number(body.ttl_days))) : null;
+    const now = Date.now();
+    const expiresAt = ttlDays ? now + ttlDays * 86_400_000 : null;
+    const created: string[] = [];
+    const insert = db().prepare(
+      "INSERT INTO invite_codes (code, created_by, created_at, expires_at) VALUES (?, ?, ?, ?)",
+    );
+    const tx = db().transaction(() => {
+      for (let i = 0; i < count; i++) {
+        // colisión muy improbable pero re-roll si pasa
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const code = generateInviteCode();
+          try {
+            insert.run(code, req.user!.id, now, expiresAt);
+            created.push(code);
+            break;
+          } catch (e) {
+            if (attempt === 4) throw e;
+          }
+        }
+      }
+    });
+    tx();
+    return { codes: created };
+  });
+
+  app.delete("/api/admin/invites/:code", { preHandler: requireAdmin }, async (req, reply) => {
+    const { code } = req.params as { code: string };
+    const result = db()
+      .prepare("DELETE FROM invite_codes WHERE code = ? AND used_by IS NULL")
+      .run(code);
+    if (result.changes === 0) {
+      reply.code(400).send({ error: "no encontrado o ya usado" });
+      return;
+    }
+    return { ok: true };
+  });
+
+  app.get("/api/admin/users", { preHandler: requireAdmin }, async () => {
+    const rows = db().prepare("SELECT * FROM users ORDER BY created_at DESC").all() as UserRow[];
+    return { users: rows.map(publicUser) };
+  });
+}
