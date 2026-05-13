@@ -1909,6 +1909,18 @@ body::before {
   padding: 0;
   background: color-mix(in oklab, var(--accent) 5%, transparent);
 }
+.reset-link-row.danger-row td {
+  background: color-mix(in oklab, var(--bad, #DD344C) 7%, transparent);
+}
+.danger-btn { color: var(--bad, #DD344C); }
+.danger-btn:hover { border-color: var(--bad, #DD344C); }
+.danger-btn-solid {
+  background: var(--bad, #DD344C);
+  color: #fff;
+  border-color: transparent;
+}
+.danger-btn-solid:hover { background: color-mix(in oklab, var(--bad, #DD344C) 88%, #000); }
+.danger-btn-solid[disabled] { opacity: 0.5; cursor: not-allowed; }
 .reset-link-box {
   display: flex; gap: 16px; justify-content: space-between; align-items: flex-start;
   padding: 14px 18px;

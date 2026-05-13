@@ -94,4 +94,26 @@ export default async function adminRoutes(app: FastifyInstance) {
       };
     },
   );
+
+  app.delete(
+    "/api/admin/users/:nickname",
+    { preHandler: requireAdmin },
+    async (req, reply) => {
+      const { nickname } = req.params as { nickname: string };
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const target = loadUserByNickname(nickname);
+      if (!target) throw new ApiError(404, "Usuario no encontrado");
+      if (target.id === req.user!.id) {
+        throw new ApiError(400, "No te puedes eliminar a ti mismo");
+      }
+      // Defensa en profundidad: el cliente debe re-enviar el nickname como confirmación
+      if (typeof body.confirm !== "string" || body.confirm !== target.nickname) {
+        throw new ApiError(400, "Confirmación incorrecta");
+      }
+      // ON DELETE CASCADE limpia sessions, progresos, configs, activity_log,
+      // password_reset_tokens, y SET NULL en invite_codes.used_by/created_by
+      db().prepare("DELETE FROM users WHERE id = ?").run(target.id);
+      reply.send({ ok: true, deletedNickname: target.nickname });
+    },
+  );
 }
