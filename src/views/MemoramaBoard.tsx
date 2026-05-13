@@ -94,6 +94,9 @@ export function MemoramaBoard() {
   const elapsedMs = (state.finishedAt ?? now) - state.startedAt;
 
   const recordStats = (s: BoardState) => {
+    // Solo grabamos en tamaños canónicos. Si filterServices + sidesFor produjo
+    // menos pares de los pedidos, s.pairs puede caer fuera y el server lo rechazaría.
+    if (![6, 8, 12, 18].includes(s.pairs)) return;
     const stats = loadMemoramaStats();
     stats.played += 1;
     const bestMoves = stats.bestMovesByPairs[s.pairs];

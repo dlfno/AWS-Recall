@@ -50,7 +50,13 @@ async function flush(): Promise<void> {
         coalescedByUrl.clear();
         break;
       }
-      // backoff y reintento — re-encola al frente
+      if (err instanceof ApiError && err.status >= 400 && err.status < 500) {
+        // 4xx ≠ auth (400 bad request, 404, 422…) → reintentar no lo arregla;
+        // descarta este job y sigue con los siguientes.
+        console.warn(`[write-queue] descartado ${job.method} ${job.url}: ${err.message}`);
+        continue;
+      }
+      // 5xx / red caída → backoff y reintento
       queue.unshift(job);
       if (job.kind === "coalesced") coalescedByUrl.set(job.url, job);
       await sleep(2000);

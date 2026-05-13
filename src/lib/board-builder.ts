@@ -41,14 +41,22 @@ function sidesFor(service: Service, pairType: MemoramaPairType): Sides | null {
   }
 }
 
+function servicesWithValidSides(
+  candidates: Service[],
+  pairType: MemoramaPairType,
+): Service[] {
+  return candidates.filter((s) => sidesFor(s, pairType) !== null);
+}
+
 function chooseServices(
   candidates: Service[],
   pairType: MemoramaPairType,
   n: number,
 ): Service[] {
+  const valid = servicesWithValidSides(candidates, pairType);
   if (pairType === "service-category") {
     const byCategory = new Map<string, Service[]>();
-    for (const s of candidates) {
+    for (const s of valid) {
       const list = byCategory.get(s.category) ?? [];
       list.push(s);
       byCategory.set(s.category, list);
@@ -62,7 +70,7 @@ function chooseServices(
     }
     return pickRandom(oneEach, n);
   }
-  return pickRandom(candidates, n);
+  return pickRandom(valid, n);
 }
 
 export interface BoardBuildResult {
@@ -82,9 +90,9 @@ const LAYOUTS: Record<number, { rows: number; cols: number }> = {
 export function maxPairsAvailable(
   config: Pick<MemoramaConfig, "categories" | "tiers" | "pairType">,
 ): number {
-  const services = filterServices(config);
-  if (config.pairType !== "service-category") return services.length;
-  const cats = new Set(services.map((s) => s.category));
+  const valid = servicesWithValidSides(filterServices(config), config.pairType);
+  if (config.pairType !== "service-category") return valid.length;
+  const cats = new Set(valid.map((s) => s.category));
   return cats.size;
 }
 
