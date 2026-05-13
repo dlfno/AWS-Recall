@@ -1605,21 +1605,6 @@ body::before {
   box-shadow: var(--shadow-sm);
 }
 
-.top-nav {
-  display: inline-flex; gap: 2px;
-  margin-right: 8px;
-}
-.top-link {
-  font-family: var(--font-display);
-  font-size: 13px; font-weight: 600;
-  padding: 8px 12px;
-  color: var(--ink-2);
-  text-decoration: none;
-  border-radius: var(--r-pill);
-  transition: background 150ms, color 150ms;
-}
-.top-link:hover { background: var(--paper-2, color-mix(in oklab, var(--paper) 50%, var(--rule))); color: var(--ink); }
-
 .user-menu { position: relative; }
 .user-dropdown {
   position: absolute; right: 0; top: calc(100% + 8px);
@@ -1958,7 +1943,6 @@ body::before {
   .dash-row { grid-template-columns: 1fr; }
   .setup-grid { grid-template-columns: 1fr; }
   .preview { position: static; }
-  .top-nav { display: none; }
   .compare-row { grid-template-columns: 1fr 1.6fr 1fr; }
   .leaderboard-row { grid-template-columns: 40px 1fr; row-gap: 6px; }
   .lb-metric, .lb-secondary { grid-column: 2; align-items: flex-start; }
@@ -1989,18 +1973,14 @@ input[type="text"], input[type="password"], input[type="number"], input[type="em
   .mode-tile:active                            { transform: scale(0.99); }
   .dd-option:active:not(:disabled)             { background: var(--paper-3); }
   .exam-bar .qdot:hover                        { transform: none; }
-  .top-link:active, .user-dropdown a:active    { background: var(--paper-2); }
+  .user-dropdown a:active                      { background: var(--paper-2); }
 }
-
-/* ─── Hamburger + drawer (defaults ocultos en desktop) ──────────────── */
-.mobile-hamburger { display: none; }
-.mobile-drawer    { display: none; }
-.mobile-drawer-backdrop { display: none; }
 
 /* ─── Breakpoint: tablets pequeñas y teléfonos grandes ──────────────── */
 @media (max-width: 768px) {
 
-  /* Topbar: cambia a flex para acomodar el hamburger sin romper el grid desktop */
+  /* Topbar más compacto, sin librar espacio para hamburger (la nav vive
+     enteramente en el dropdown del avatar) */
   .topbar {
     display: flex;
     align-items: center;
@@ -2009,79 +1989,6 @@ input[type="text"], input[type="password"], input[type="number"], input[type="em
   }
   .topbar-spacer { flex: 1 1 auto; }
   .topbar .brand-tag { display: none; }
-
-  .mobile-hamburger {
-    display: inline-flex;
-    width: 40px; height: 40px;
-    border-radius: var(--r-md);
-    background: transparent;
-    border: 1px solid var(--rule);
-    color: var(--ink);
-    font-size: 20px; line-height: 1;
-    align-items: center; justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .mobile-hamburger:active { background: var(--paper-2); }
-
-  .mobile-drawer-backdrop {
-    display: block;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.4);
-    opacity: 0; pointer-events: none;
-    transition: opacity 240ms var(--ease-out);
-    z-index: 29;
-  }
-  .mobile-drawer-backdrop.open { opacity: 1; pointer-events: auto; }
-
-  .mobile-drawer {
-    display: flex; flex-direction: column;
-    position: fixed; top: 0; left: 0; bottom: 0;
-    width: min(280px, 80vw);
-    background: var(--paper);
-    border-right: 1px solid var(--rule);
-    box-shadow: var(--shadow-lg);
-    padding: 18px 14px 20px;
-    transform: translateX(-100%);
-    transition: transform 240ms var(--ease-out);
-    z-index: 30;
-    overflow-y: auto;
-  }
-  .mobile-drawer.open { transform: translateX(0); }
-  .mobile-drawer .drawer-head {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 4px 6px 14px;
-    border-bottom: 1px solid var(--rule);
-    margin-bottom: 10px;
-  }
-  .mobile-drawer .drawer-head strong {
-    font-family: var(--font-display); font-size: 16px;
-  }
-  .mobile-drawer .drawer-close {
-    width: 36px; height: 36px;
-    border-radius: var(--r-md);
-    background: transparent; border: 1px solid var(--rule);
-    color: var(--ink); font-size: 16px;
-    display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer;
-  }
-  .mobile-drawer a,
-  .mobile-drawer .drawer-action {
-    display: flex; align-items: center;
-    padding: 12px 12px; min-height: 48px;
-    text-decoration: none;
-    color: var(--ink);
-    border-radius: var(--r-md);
-    font-size: 15px;
-    background: transparent; border: 0;
-    text-align: left; width: 100%;
-    cursor: pointer;
-  }
-  .mobile-drawer a:active,
-  .mobile-drawer .drawer-action:active { background: var(--paper-2); }
-  .mobile-drawer .drawer-divider {
-    height: 1px; background: var(--rule); margin: 8px 4px;
-  }
 
   /* Page padding */
   .page { padding: 18px 16px 64px; }
@@ -2164,9 +2071,6 @@ input[type="text"], input[type="password"], input[type="number"], input[type="em
   .h-display { font-size: clamp(26px, 7vw, 44px); }
   .h1 { font-size: 24px; }
   .h2 { font-size: 18px; }
-
-  /* Body lock cuando el drawer está abierto */
-  body.drawer-open { overflow: hidden; }
 }
 
 /* ─── Breakpoint: teléfonos estándar y pequeños ─────────────────────── */

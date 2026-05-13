@@ -25,6 +25,7 @@ contraseña asistida por admin y deploy con un solo comando.
 ![Drilldown features](https://img.shields.io/badge/Drilldown%20Features-105-7B61FF?style=for-the-badge)
 ![Categorías](https://img.shields.io/badge/Categorías-17-E7157B?style=for-the-badge)
 ![A11y](https://img.shields.io/badge/Dislexia-OpenDyslexic-2BB673?style=for-the-badge)
+![Mobile](https://img.shields.io/badge/Mobile-responsive-FF6B9D?style=for-the-badge&logo=apple&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
 
 </div>
@@ -46,6 +47,7 @@ contraseña asistida por admin y deploy con un solo comando.
 - [Modos de juego — detalle](#-modos-de-juego--detalle)
 - [Stats dashboard](#-stats-dashboard)
 - [Personalización](#-personalización)
+- [Mobile](#-mobile)
 - [Catálogo curado](#-catálogo-curado)
 - [Íconos oficiales de AWS](#-íconos-oficiales-de-aws)
 - [Persistencia](#-persistencia)
@@ -112,6 +114,16 @@ recall.tu-dominio.com/login    → entrar con apodo + contraseña
 - ♿ **OpenDyslexic** servida vía jsdelivr — opción específicamente diseñada para dislexia
 - 💾 Persistencia por **usuario** (sincronizada entre dispositivos vía `user_configs`)
 
+### 📱 Mobile-friendly
+
+- 📐 **Layout responsive** con breakpoints en `768px` (tablet/laptop chica) y `480px` (móvil)
+- 👤 **Una sola navegación** — el dropdown del avatar es el único menú en desktop y mobile (sin drawer extra, sin top-nav redundante)
+- 📲 **Safe areas iPhone** (`viewport-fit=cover`) y altura real con `100dvh` + fallback `@supports`
+- 🔍 **Sin auto-zoom en iOS**: inputs a 16 px en mobile
+- 👆 **Tap feedback** en `@media (hover: none)` — animaciones sin requerir hover
+- 🎯 Grids 4→2→1 columna, q-dots de examen envuelven multilínea, heatmap colapsa a 14×2,
+  tablas de admin con scroll horizontal, flashcard altura `clamp(320px, 60vh, 460px)`
+
 ### 📊 Stats dashboard
 
 - Distribución Leitner con barras de color por caja
@@ -138,6 +150,7 @@ recall.tu-dominio.com/login    → entrar con apodo + contraseña
 - `tsc -b` estricto
 - React Router 6 (`BrowserRouter`)
 - Sin librerías de UI — `styles.css` propio
+- Responsive con dropdown único (`100dvh`, safe areas)
 - Cache en memoria + queue async
 - Firmas sync preservadas en las vistas
 
@@ -328,7 +341,7 @@ BOOTSTRAP_INVITE=FIRSTRUN
 ├── src/                           ← frontend (Vite + React + TS)
 │   ├── App.tsx                    ← rutas (con ProtectedRoute)
 │   ├── main.tsx                   ← monta AuthProvider + aplica apariencia
-│   ├── styles.css                 ← sistema visual completo (~1500 líneas)
+│   ├── styles.css                 ← sistema visual completo + bloque Responsive Mobile
 │   │
 │   ├── lib/
 │   │   ├── types.ts               ← Service, ServiceFeature, ExamConfig…
@@ -349,7 +362,7 @@ BOOTSTRAP_INVITE=FIRSTRUN
 │   │   └── format.ts              ← formatRelative / formatTimeMs / formatPercent
 │   │
 │   ├── components/
-│   │   ├── AppShell.tsx           ← Topbar + menú con avatar + nav social
+│   │   ├── AppShell.tsx           ← Topbar + dropdown del avatar (única nav, desktop y mobile)
 │   │   ├── ProtectedRoute.tsx     ← redirige a /login si no hay sesión
 │   │   ├── PhotoUpload.tsx        ← <Avatar> + uploader 256×256 webp
 │   │   ├── FiltersControl.tsx     ← chips de tier + categoría con contador
@@ -674,6 +687,49 @@ para preservar legibilidad en tema light y dark.
 `light` / `dark` toggle desde la 🌙/☀️ del topbar. Persistencia local
 (`localStorage.aws-study-cards:v2:theme`) — la preferencia de tema **no se
 sincroniza** entre dispositivos a propósito (ambient lighting es per-device).
+
+---
+
+## 📱 Mobile
+
+La app está optimizada para celulares y tablets. El sistema visual nunca
+fue mobile-first, pero hay un bloque **Responsive Mobile** aditivo al final
+de `styles.css` que ajusta layouts. La navegación es la misma en todos los
+tamaños: **click en el avatar → dropdown**. No hay hamburger, no hay drawer
+lateral, no hay top-nav adicional — un solo patrón.
+
+### Breakpoints
+
+| Ancho | Cambios |
+|---|---|
+| **`> 768 px`** | Layout desktop: brand a la izquierda, theme toggle + streak + avatar a la derecha, grids 4 columnas, heatmap 28×1. |
+| **`≤ 768 px`** | Topbar más compacto (sin `brand-tag` "aws"). Grids `mode-grid`/`stats-grid`/`how-grid` colapsan a 2 columnas. Flashcard usa `height: clamp(320px, 60vh, 460px)`. Memorama con tipografía adaptativa. Exam q-dots envuelven multilínea y crecen a 22 px (más tap-target). Tablas de admin con scroll horizontal. `.reset-link-box` se apila. `.user-dropdown` con `width: min(260px, calc(100vw - 24px))` para no desbordar. |
+| **`≤ 480 px`** | Home y stats a **1 columna**. Heatmap colapsa a 14 cols × 2 filas. Topbar más compacto aún. Pill 🔥 de racha oculta para liberar espacio. |
+
+### Técnicas
+
+- 📏 **`100dvh`** con `@supports` y fallback a `100vh` — altura real del
+  viewport contando barras dinámicas de iOS/Android.
+- 📲 **`viewport-fit=cover`** en `index.html` + safe areas iPhone.
+- 🔍 **Inputs a 16 px** en mobile — evita el auto-zoom de Safari en focus.
+- 👆 **`@media (hover: none)`** — el tap feedback no depende de hover, los
+  `.btn:active` y `.mode-tile:active` quedan visibles.
+- 🎯 **Dropdown del avatar** dimensionado dinámicamente: en desktop tiene
+  `min-width: 220px` anclado a la derecha del avatar; en mobile pasa a
+  `width: min(260px, calc(100vw - 24px))` y `right: -6px` para evitar
+  desbordar el viewport.
+
+### Lo que no hicimos a propósito
+
+- **No hay drawer ni hamburger** — el dropdown del avatar es suficiente
+  para 10-15 destinos. Un drawer separado solo agregaría otro patrón a
+  mantener y otro lugar donde los links pueden divergir.
+- **No hay app nativa ni PWA** — es una SPA responsive servida por Fastify.
+  Si quieres "instalarla" como app en home screen, los browsers móviles
+  modernos lo permiten via *Add to Home Screen* y la experiencia es decente
+  gracias a las safe areas.
+- **No hay layouts diferentes para mobile** — los mismos componentes
+  reflowan. Esto mantiene el bundle único y evita drift entre versiones.
 
 ---
 
