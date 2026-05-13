@@ -73,7 +73,7 @@ recall.tu-dominio.com/login    → entrar con apodo + contraseña
                        /leaderboard      → rankings por modo
                        /feed             → actividad reciente de la clase
                        /ajustes          → apariencia (6 acentos + 4 fuentes), perfil, contraseña
-                       /admin            → invite codes + miembros + reset de contraseñas
+                       /admin            → invite codes + miembros (reset / eliminar)
 ```
 
 ---
@@ -95,6 +95,7 @@ recall.tu-dominio.com/login    → entrar con apodo + contraseña
 - 👤 **Perfiles** con nombre completo, apodo único, foto (resize automático a 256×256 webp)
 - ✏️ **Edición de perfil y cambio de contraseña** in-app desde `/ajustes`
 - 🆘 **Recuperación de contraseña asistida por admin** con tokens de un solo uso (TTL 24h) — sin necesidad de email ni SMTP
+- 🗑️ **Eliminar miembros** con doble confirmación (typing del apodo) — `ON DELETE CASCADE` limpia progresos, sesiones, records y feed
 - 🏆 **Leaderboards** por modo (cartas dominadas, % drilldown, exámenes aprobados, partidas de memorama)
 - 🤝 **Comparación 1-a-1** entre dos usuarios con ganador resaltado por fila
 - 📅 **Heatmap de actividad** tipo GitHub (últimos 28 días)
@@ -369,7 +370,7 @@ BOOTSTRAP_INVITE=FIRSTRUN
 │       ├── Compare.tsx            ← /compare/:a/:b — cara a cara
 │       ├── Leaderboard.tsx        ← rankings por modo
 │       ├── Feed.tsx               ← actividad reciente de la clase
-│       ├── Admin.tsx              ← invites + miembros + botón resetear contraseña
+│       ├── Admin.tsx              ← invites + miembros + reset/eliminar contraseña
 │       └── Settings.tsx           ← /ajustes — apariencia + perfil + contraseña
 │
 ├── server/                        ← backend (Fastify + better-sqlite3)
@@ -386,7 +387,7 @@ BOOTSTRAP_INVITE=FIRSTRUN
 │       └── routes/
 │           ├── auth.ts            ← /api/auth/* (login, register, reset, me…)
 │           ├── me.ts              ← /api/me/{profile,photo,password}
-│           ├── admin.ts           ← /api/admin/{invites,users,users/:nick/reset-password}
+│           ├── admin.ts           ← /api/admin/{invites,users,users/:nick/{reset-password,DELETE}}
 │           ├── progress.ts        ← flashcards/drilldown/memorama/exam/config + DELETEs
 │           └── social.ts          ← /api/users, /:nick, /compare, /leaderboard, /feed
 │
@@ -446,6 +447,7 @@ cookie de sesión válida.
 | `DELETE` | `/api/admin/invites/:code` | — | `{ok}` o 400 si ya usado |
 | `GET`    | `/api/admin/users` | — | `{users: [...]}` |
 | `POST`   | `/api/admin/users/:nickname/reset-password` | — | `{token, expiresAt, targetNickname, targetFullName}`. Rechaza self-reset con 400 |
+| `DELETE` | `/api/admin/users/:nickname` | `{confirm: nickname}` | `{ok, deletedNickname}`. Rechaza self-delete y confirm incorrecto con 400. `ON DELETE CASCADE` limpia toda la data del user |
 
 ### Progreso
 
@@ -748,8 +750,9 @@ para no tocar las vistas existentes. Las escrituras pasan por
 - 🔁 **Coalescing** para PATCH/PUT (ej. flashcard map completo) — sólo la
   versión más reciente sale en cada flush
 - 📤 **Append** para POST (events como drilldown answer, exam attempt)
-- 🔄 **Retry con backoff** ante 5xx; descarta cola ante 401/403 y dispara
-  logout global
+- 🔄 **Retry con backoff** ante 5xx / errores de red; descarta cola ante 401/403
+  y dispara logout global; descarta job individual (con `console.warn`) ante
+  cualquier otro 4xx (400/404/422…) — retry no resuelve errores de cliente
 - 📡 **`sendBeacon`** en `beforeunload` para POSTs append pendientes
 - 🟢 Re-flush al volver `online`
 
