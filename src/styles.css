@@ -1964,3 +1964,235 @@ body::before {
   .lb-metric, .lb-secondary { grid-column: 2; align-items: flex-start; }
   .heatmap { grid-template-columns: repeat(14, 1fr); }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   Responsive Mobile  (capa aditiva, no toca desktop)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Viewport dinámico (dvh) cuando el navegador lo soporta — evita gap por barra
+   de URL en iOS Safari */
+@supports (height: 100dvh) {
+  .shell { min-height: 100dvh; }
+}
+
+/* Inputs: subir a 16px para no disparar auto-zoom en iOS */
+.field input, .field select, .field textarea,
+input[type="text"], input[type="password"], input[type="number"], input[type="email"] {
+  font-size: 16px;
+}
+
+/* En dispositivos sin hover, replicar feedback visual con :active */
+@media (hover: none) {
+  .btn:active                                  { transform: translateY(1px); }
+  .chip:active                                 { background: var(--paper-3); }
+  .board-card:active:not(.matched)             { transform: scale(0.97); }
+  .mode-tile:active                            { transform: scale(0.99); }
+  .dd-option:active:not(:disabled)             { background: var(--paper-3); }
+  .exam-bar .qdot:hover                        { transform: none; }
+  .top-link:active, .user-dropdown a:active    { background: var(--paper-2); }
+}
+
+/* ─── Hamburger + drawer (defaults ocultos en desktop) ──────────────── */
+.mobile-hamburger { display: none; }
+.mobile-drawer    { display: none; }
+.mobile-drawer-backdrop { display: none; }
+
+/* ─── Breakpoint: tablets pequeñas y teléfonos grandes ──────────────── */
+@media (max-width: 768px) {
+
+  /* Topbar: cambia a flex para acomodar el hamburger sin romper el grid desktop */
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .topbar-spacer { flex: 1 1 auto; }
+  .topbar .brand-tag { display: none; }
+
+  .mobile-hamburger {
+    display: inline-flex;
+    width: 40px; height: 40px;
+    border-radius: var(--r-md);
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    font-size: 20px; line-height: 1;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .mobile-hamburger:active { background: var(--paper-2); }
+
+  .mobile-drawer-backdrop {
+    display: block;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    opacity: 0; pointer-events: none;
+    transition: opacity 240ms var(--ease-out);
+    z-index: 29;
+  }
+  .mobile-drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .mobile-drawer {
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: min(280px, 80vw);
+    background: var(--paper);
+    border-right: 1px solid var(--rule);
+    box-shadow: var(--shadow-lg);
+    padding: 18px 14px 20px;
+    transform: translateX(-100%);
+    transition: transform 240ms var(--ease-out);
+    z-index: 30;
+    overflow-y: auto;
+  }
+  .mobile-drawer.open { transform: translateX(0); }
+  .mobile-drawer .drawer-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 6px 14px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 10px;
+  }
+  .mobile-drawer .drawer-head strong {
+    font-family: var(--font-display); font-size: 16px;
+  }
+  .mobile-drawer .drawer-close {
+    width: 36px; height: 36px;
+    border-radius: var(--r-md);
+    background: transparent; border: 1px solid var(--rule);
+    color: var(--ink); font-size: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .mobile-drawer a,
+  .mobile-drawer .drawer-action {
+    display: flex; align-items: center;
+    padding: 12px 12px; min-height: 48px;
+    text-decoration: none;
+    color: var(--ink);
+    border-radius: var(--r-md);
+    font-size: 15px;
+    background: transparent; border: 0;
+    text-align: left; width: 100%;
+    cursor: pointer;
+  }
+  .mobile-drawer a:active,
+  .mobile-drawer .drawer-action:active { background: var(--paper-2); }
+  .mobile-drawer .drawer-divider {
+    height: 1px; background: var(--rule); margin: 8px 4px;
+  }
+
+  /* Page padding */
+  .page { padding: 18px 16px 64px; }
+
+  /* Grids 4-col → 2-col */
+  .mode-grid, .how-grid, .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .mode-tile { min-height: 220px; padding: 18px; }
+  .mode-tile .mode-title { font-size: 22px; }
+  .mode-tile .mode-cta { width: 44px; height: 44px; }
+
+  /* Setup */
+  .setup-grid { grid-template-columns: 1fr; gap: 16px; }
+  .preview { position: static; }
+
+  /* Flashcard: altura fluida */
+  .flashcard-stage { height: clamp(320px, 60vh, 460px); }
+  .flash-face { padding: 24px 22px; }
+  .flash-body .answer { font-size: clamp(24px, 6vw, 42px); }
+  .flash-face[data-variant="minimal"] .flash-body .answer { font-size: clamp(28px, 8vw, 60px); }
+  .flash-face[data-variant="minimal"] .flash-body .prompt { font-size: clamp(20px, 5.5vw, 36px); }
+  .flash-face[data-variant="index"] .flash-body .answer { font-size: clamp(22px, 5.5vw, 36px); }
+
+  /* Exam bar: q-dots wrap a multilínea, timer queda visible */
+  .exam-bar {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "back  qprog timer"
+      "qprog qprog qprog"
+      "end   end   end";
+    row-gap: 8px;
+    padding: 10px 12px;
+  }
+  .exam-bar .qprog  { grid-column: 1 / -1; }
+  .exam-bar .qdots  { flex-wrap: wrap; gap: 6px; }
+  .exam-bar .qdot   { width: 22px; height: 22px; }
+  .exam-bar .timer  { font-size: 20px; }
+
+  /* Drilldown */
+  .dd-option { padding: 14px 16px; min-height: 56px; }
+  .dd-shell  { max-width: 100%; }
+  .session-shell { max-width: 100%; }
+
+  /* Memorama: tipografía adaptativa por celda */
+  .memo-hud { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .memo-hud .cell { padding: 10px 12px; }
+  .bc-front { padding: 8px; }
+  .bc-front .text-xl { font-size: clamp(13px, 4vw, 30px); }
+  .bc-front .text-lg { font-size: clamp(12px, 3.5vw, 20px); }
+  .bc-front .text    { font-size: clamp(11px, 3vw, 16px); }
+
+  /* Tablas Admin: scroll horizontal cuando no caben + filas de detalle stacked */
+  .invite-table { display: block; overflow-x: auto; white-space: nowrap; }
+  .invite-table th, .invite-table td { white-space: nowrap; }
+  .reset-link-row td { white-space: normal; }
+  .reset-link-box { flex-direction: column; gap: 10px; align-items: stretch; }
+  .reset-link-box > div:last-child { flex-wrap: wrap; }
+  .reset-url { font-size: 11px; max-width: 100%; }
+  .invite-form { gap: 10px; }
+
+  /* Miembros, perfiles */
+  .members-grid { grid-template-columns: 1fr; }
+  .profile-grid { grid-template-columns: 1fr; }
+
+  /* Compare 3-col */
+  .compare-row { grid-template-columns: 1fr 1.2fr 1fr; gap: 8px; font-size: 13px; }
+
+  /* Leaderboard refinado */
+  .leaderboard-row { grid-template-columns: 36px 1fr; }
+
+  /* User dropdown del avatar: que no se desborde */
+  .user-dropdown {
+    right: -6px;
+    min-width: 0;
+    width: min(260px, calc(100vw - 24px));
+  }
+
+  /* Stat values más compactos */
+  .stat .value { font-size: 30px; }
+  .stat .value.sm { font-size: 18px; }
+  .h-display { font-size: clamp(26px, 7vw, 44px); }
+  .h1 { font-size: 24px; }
+  .h2 { font-size: 18px; }
+
+  /* Body lock cuando el drawer está abierto */
+  body.drawer-open { overflow: hidden; }
+}
+
+/* ─── Breakpoint: teléfonos estándar y pequeños ─────────────────────── */
+@media (max-width: 480px) {
+
+  /* Grids: una columna en home y stats */
+  .mode-grid, .how-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr; }
+
+  /* Heatmap: wrap a 14 cols × 2 filas */
+  .heatmap, .heat-grid { grid-template-columns: repeat(14, 1fr); }
+
+  /* Continue bar stacked */
+  .continue-bar { grid-template-columns: 1fr; row-gap: 10px; }
+
+  /* Topbar aún más compacto */
+  .topbar { padding: 10px 12px; gap: 8px; }
+  .topbar .brand-mark { width: 32px; height: 32px; font-size: 16px; }
+  .topbar .brand-name { font-size: 17px; }
+
+  /* Racha ocupa espacio en pantallas chicas — los usuarios la ven en su perfil */
+  .topbar .streak { display: none; }
+
+  /* Flashcard padding aún más ajustado */
+  .flash-face { padding: 18px 16px; }
+
+  /* Exam q-dot mínimo 20px */
+  .exam-bar .qdot { width: 20px; height: 20px; }
+}

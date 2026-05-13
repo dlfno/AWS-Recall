@@ -35,14 +35,37 @@ export function Topbar() {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [menuOpen]);
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [location.pathname]);
+  useEffect(() => {
+    if (drawerOpen) document.body.classList.add("drawer-open");
+    else document.body.classList.remove("drawer-open");
+    return () => document.body.classList.remove("drawer-open");
+  }, [drawerOpen]);
+  const closeDrawer = () => setDrawerOpen(false);
+
   const handleLogout = async () => {
     await logout();
     setMenuOpen(false);
+    setDrawerOpen(false);
     navigate("/login", { replace: true });
   };
 
   return (
     <header className="topbar">
+      {status === "authed" && (
+        <button
+          type="button"
+          className="mobile-hamburger"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Abrir menú"
+          aria-expanded={drawerOpen}
+        >
+          ☰
+        </button>
+      )}
       <Link to="/" className="brand" style={{ textDecoration: "none", color: "inherit" }}>
         <div className="brand-mark">R</div>
         <div>
@@ -50,6 +73,41 @@ export function Topbar() {
           <span className="brand-tag">aws</span>
         </div>
       </Link>
+      {status === "authed" && user && (
+        <>
+          <div
+            className={`mobile-drawer-backdrop ${drawerOpen ? "open" : ""}`}
+            onClick={closeDrawer}
+            aria-hidden="true"
+          />
+          <aside className={`mobile-drawer ${drawerOpen ? "open" : ""}`} aria-hidden={!drawerOpen}>
+            <div className="drawer-head">
+              <strong>Menú</strong>
+              <button
+                type="button"
+                className="drawer-close"
+                onClick={closeDrawer}
+                aria-label="Cerrar menú"
+              >
+                ✕
+              </button>
+            </div>
+            <Link to="/" onClick={closeDrawer}>Inicio</Link>
+            <Link to="/stats" onClick={closeDrawer}>Mis stats</Link>
+            <Link to={`/u/${user.nickname}`} onClick={closeDrawer}>Mi perfil</Link>
+            <div className="drawer-divider" />
+            <Link to="/miembros" onClick={closeDrawer}>Miembros</Link>
+            <Link to="/leaderboard" onClick={closeDrawer}>Leaderboard</Link>
+            <Link to="/feed" onClick={closeDrawer}>Feed</Link>
+            <div className="drawer-divider" />
+            <Link to="/ajustes" onClick={closeDrawer}>Apariencia</Link>
+            {user.isAdmin && <Link to="/admin" onClick={closeDrawer}>Admin</Link>}
+            <button type="button" className="drawer-action" onClick={handleLogout}>
+              Cerrar sesión
+            </button>
+          </aside>
+        </>
+      )}
       <div className="topbar-spacer" />
       <div className="meta">
         {status === "authed" && (
